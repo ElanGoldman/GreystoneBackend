@@ -4,7 +4,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from pydantic import BaseModel
 
-from crud import create_loan, get_loans, create_share, get_all_loans_temp, get_all_shares_temp
+from crud import create_loan, get_loans, create_share, get_all_loans_temp, get_all_shares_temp, get_month, get_schedule
 from database import init_db, close_db, get_db
 
 @asynccontextmanager
@@ -33,12 +33,12 @@ async def add_loan(loan: Loan, db: AsyncSession = Depends(get_db)):
     return await create_loan(db, loan.amount, loan.apr, loan.term, loan.status, loan.owner_id)
 
 @app.get("/loan-schedule/{loan_id}")
-async def loan_schedule(loan_id: int):
-    return {"message": f"Loan details for loan id: {loan_id}"}
+async def loan_schedule(loan_id: int, db: AsyncSession = Depends(get_db)):
+    return await get_schedule(db, loan_id)
 
 @app.get("/loan-summary/{loan_id}/{month}")
-async def loan_summary(loan_id: int, month: int):
-    return {"message": "Loan created successfully!"}
+async def loan_summary(loan_id: int, month: int, db: AsyncSession = Depends(get_db)):
+    return await get_month(db, loan_id, month)
 
 @app.get("/loans/all")
 async def all_loans(db: AsyncSession = Depends(get_db)):
@@ -52,8 +52,6 @@ async def list_loans(user_id: int, db: AsyncSession = Depends(get_db)):
 async def share_loan(loan_id: int, owner_id: int, user_id: int, db: AsyncSession = Depends(get_db)):
     #share = create_share(db, loan_id, owner_id, user_id)
     return await create_share(db, loan_id, owner_id, user_id)
-
-
 
 @app.get("/shares/all")
 async def all_shares(db: AsyncSession = Depends(get_db)):
