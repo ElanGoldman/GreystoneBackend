@@ -1,4 +1,9 @@
 from fastapi import FastAPI
+import pyodbc 
+
+
+conn = pyodbc.connect('DRIVER={SQL Server};SERVER=;DATABASE=;UID=;PWD=')
+
 
 app = FastAPI(swagger_ui_parameters={"syntaxHighlight": {"theme": "obsidian"}})
 

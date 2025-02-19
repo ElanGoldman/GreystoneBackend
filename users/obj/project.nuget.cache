@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "JF50lGohwG0=",
+  "success": true,
+  "projectFilePath": "c:\\Users\\elang\\OneDrive\\Documents\\Greystone Challenge Backend\\users\\users.sqlproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\elang\\.nuget\\packages\\microsoft.netframework.referenceassemblies\\1.0.0\\microsoft.netframework.referenceassemblies.1.0.0.nupkg.sha512",
+    "C:\\Users\\elang\\.nuget\\packages\\microsoft.netframework.referenceassemblies.net46\\1.0.0\\microsoft.netframework.referenceassemblies.net46.1.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
