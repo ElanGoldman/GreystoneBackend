@@ -4,6 +4,10 @@ from sqlalchemy.future import select
 from models import Loan, Share
 
 async def create_loan(db: AsyncSession, amount: int, apr: int, term: int, status: str, owner_id: int):
+    if amount <= 0 or apr < 0 or term <= 0 or owner_id < 0:
+        raise HTTPException(status_code=400, detail="Invalid input with numerical values")
+    if status not in ["active", "inactive"]:
+        raise HTTPException(status_code=400, detail="Invalid status")
     new_loan = Loan(amount=amount, apr=apr, term=term, status=status, owner_id=owner_id)
     db.add(new_loan)
     await db.commit()
@@ -24,6 +28,11 @@ async def get_all_shares_temp(db: AsyncSession):
     return result.scalars().all()
  
 async def create_share(db: AsyncSession, loan_id: int, owner_id: int, user_id: int):
+    loan = (await db.execute(select(Loan).where(Loan.id == loan_id))).scalars().first()
+    if loan is None:
+        raise HTTPException(status_code=404, detail="Item not found")
+    if loan.owner_id != owner_id:
+        raise HTTPException(status_code=400, detail="You are not the owner of the loan")
     new_share = Share(loan_id=loan_id, owner_id=owner_id, user_id=user_id)
     db.add(new_share)
     await db.commit()
@@ -41,6 +50,8 @@ async def get_month(db: AsyncSession, loan_id: int, month: int):
     if loan is None:
         raise HTTPException(status_code=404, detail="Item not found")
     schedule = amrotize(loan)
+    if len(schedule) > month:
+        raise HTTPException(status_code=400, detail="Month is past the term")
     total_interest = sum([payment["interest"] for payment in schedule])
     total_principal = sum([payment["monthly_payment"] - payment["interest"] for payment in schedule])
     return {"remaining_balance": schedule[month]["remaining_balance"], "total_interest": total_interest, "total_principal": total_principal}
