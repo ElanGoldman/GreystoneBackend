@@ -40,8 +40,10 @@ async def get_month(db: AsyncSession, loan_id: int, month: int):
     loan = (await db.execute(select(Loan).where(Loan.id == loan_id))).scalars().first()
     if loan is None:
         raise HTTPException(status_code=404, detail="Item not found")
-    schedule = amrotize(loan)[month]
-    return {}
+    schedule = amrotize(loan)
+    total_interest = sum([payment["interest"] for payment in schedule])
+    total_principal = sum([payment["monthly_payment"] - payment["interest"] for payment in schedule])
+    return {"remaining_balance": schedule[month]["remaining_balance"], "total_interest": total_interest, "total_principal": total_principal}
 
 def amrotize (loan):
     p = loan.amount
@@ -52,7 +54,7 @@ def amrotize (loan):
     for i in range(1, n):
         interest = round(p * r)
         p += interest - monthly_payment
-        payments.append({"month": i,  "monthly_payment": monthly_payment, "remaining_balance": p})
+        payments.append({"month": i, "monthly_payment": monthly_payment, "interest": interest, "remaining_balance": p})
 
-    payments.append({"month": n,  "monthly_payment": round(p + p*r), "remaining_balance": 0})
+    payments.append({"month": n,  "monthly_payment": round(p + p*r), "interest": round(p*r), "remaining_balance": 0})
     return payments

@@ -50,7 +50,6 @@ async def list_loans(user_id: int, db: AsyncSession = Depends(get_db)):
 
 @app.post("/loans/{loan_id}/share/")
 async def share_loan(loan_id: int, owner_id: int, user_id: int, db: AsyncSession = Depends(get_db)):
-    #share = create_share(db, loan_id, owner_id, user_id)
     return await create_share(db, loan_id, owner_id, user_id)
 
 @app.get("/shares/all")
